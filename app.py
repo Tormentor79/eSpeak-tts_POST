@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/tts", methods=["POST"])
 def generate_tts():
-  # Lee el texto largo directamente del cuerpo (body) del POST
+  # Lee el texto completo del cuerpo del POST
   texto = request.data.decode("utf-8")
 
   if not texto or not texto.strip():
@@ -16,18 +16,22 @@ def generate_tts():
   audio_path = "audio.wav"
 
   try:
-    # Ejecuta eSpeak NG para generar el archivo WAV en español
+    # Ejecutamos eSpeak NG pasándole el texto por stdin (input)
+    # Esto evita cualquier límite de tamaño o problemas con puntuación/espacios
     subprocess.run(
-        ["espeak-ng", "-v", "es", "-w", audio_path, texto], check=True
+        ["espeak-ng", "-v", "es", "-w", audio_path],
+        input=texto.encode("utf-8"),
+        check=True,
     )
-    return send_file(audio_path, mimetype="audio/wav")
+
+    return send_file(audio_path, mimetype="audio/mpeg")
   except Exception as e:
     return {"error": str(e)}, 500
 
 
 @app.route("/")
 def home():
-  return "Servidor eSpeak activo para Integral Server (Modo POST)"
+  return "Servidor eSpeak activo (Modo STDIN)"
 
 
 if __name__ == "__main__":
