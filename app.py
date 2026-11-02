@@ -1,6 +1,6 @@
-from flask import Flask, request, send_file
 import os
 import subprocess
+from flask import Flask, request, send_file
 
 app = Flask(__name__)
 
@@ -8,13 +8,14 @@ app = Flask(__name__)
 @app.route("/tts", methods=["POST"])
 def generate_tts():
   try:
+    # Recibir texto por el cuerpo de la petición POST
     texto = request.data.decode("utf-8")
     if not texto or not texto.strip():
       texto = "Texto vacío"
 
     audio_path = "audio.wav"
 
-    # Ejecutamos eSpeak NG pasándole el texto por stdin y capturando errores detallados
+    # Ejecutar espeak-ng mediante entrada estándar (stdin)
     resultado = subprocess.run(
         ["espeak-ng", "-v", "es", "-w", audio_path],
         input=texto.encode("utf-8"),
@@ -34,9 +35,9 @@ def generate_tts():
     return {"error": str(e)}, 500
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
-  return "Servidor eSpeak activo"
+  return "Servidor eSpeak (Docker) activo y listo para recibir POST.", 200
 
 
 if __name__ == "__main__":
