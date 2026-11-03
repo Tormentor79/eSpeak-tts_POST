@@ -38,9 +38,10 @@ def verificar_estado_espeak():
         # Hacemos un GET rápido con un timeout corto
         response = requests.get(base_espeak_url, timeout=5)
         
-        # Si responde 200 OK, está operativo
-        if response.status_code == 200:
-            print(f"Servidor respondió. Status Code del GET: {response.status_code}")
+        # 1. Evaluamos que sea 200 OK
+        # 2. Evaluamos que la respuesta sea texto plano y NO una página HTML de Render (<html...)
+        if response.status_code == 200 and "<html" not in response.text.lower():
+            print(f"Servidor eSpeak operativo. Status Code: {response.status_code}")
             return True
             
         return False
